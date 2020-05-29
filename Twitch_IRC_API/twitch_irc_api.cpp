@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h> 
-#include "twitch_irc_api.h"
+#include "../include/twitch_irc_api.h"
 #include "bot_credentials.h"
 	
 //Const
@@ -170,13 +170,16 @@ void TwitchWebsocketIRC::parse_twitch_command_message(char * twitch_command_mess
 		tokenLocation = strchr(currLocation, ' ');
 	}
 	twitch_component_splits[assignCount++] = currLocation;
+	
 	if (twitch_component_splits[DATA]) {
 		twitch_component_splits[DATA] = (twitch_component_splits[DATA] + 1);
-		//Replace the ' :' with ';'
-		char* replaceCol = strstr(twitch_component_splits[DATA], " :");
-		if (replaceCol) {
-			*replaceCol = ';';
-			*(replaceCol + 1) = 0;
+		//Replace the ' :' with ';' if its not a PRIVMSG
+		if(strcmp(twitch_component_splits[COMMAND_NAME], "PRIVMSG") != 0){
+			char* replaceCol = strstr(twitch_component_splits[DATA], " :");
+			if (replaceCol) {
+				*replaceCol = ';';
+				*(replaceCol + 1) = 0;
+			}
 		}
 	}
 
@@ -344,6 +347,11 @@ void TwitchWebsocketIRC::parse_tags(char* twitch_component_splits[]) {
 	else if (strcmp(twitch_component_splits[COMMAND_NAME], "PRIVMSG") == 0) {
 		//Default Assignments
 		twitch_command.priv_msg_data.channel_name = twitch_component_splits[CHANNEL_NAME];
+		//Remove the new line from the message
+		char * newLine = strchr(twitch_component_splits[DATA], '\n');
+		if(newLine){
+			*newLine = 0;
+		}
 		twitch_command.priv_msg_data.message = twitch_component_splits[DATA];
 
 		char* currTag = strtok(twitch_component_splits[TAGS_DATA], ";");
