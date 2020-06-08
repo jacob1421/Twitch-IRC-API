@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h> 
-#include "../include/twitch_irc_api.h"
+#include "twitch_irc_api.h"
 #include "bot_credentials.h"
 	
 //Const
